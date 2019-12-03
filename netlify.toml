@@ -1,0 +1,6 @@
+[Settings]
+  ID = "scott-ee"
+
+[build]
+  publish = "dist/"
+  command = "npm run generate --fail-on-page-error"
