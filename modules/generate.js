@@ -2,9 +2,32 @@ import Axios from 'axios'
 import Cache from 'node-persist'
 import fs from 'fs'
 import ef from 'empty-folder'
+import getTmpDir from './getTmpDir'
 
-const cache = Cache.create( { dir: '/tmp/', ttl: 300000 } )
 const debug = require( 'debug' )( 'nuxt:generate' )
+const cacheDir = getTmpDir()
+
+// https://stackoverflow.com/a/21196961/1397641
+function ensureExists(path, mask, cb) {
+    if (typeof mask == 'function') { // allow the `mask` parameter to be optional
+        cb = mask
+        mask = '0777'
+    }
+    fs.mkdir(path, mask, function(err) {
+        if (err) {
+            if (err.code == 'EEXIST') cb(null); // ignore the error if the folder already exists
+            else cb(err) // something else went wrong
+        } else cb(null) // successfully created folder
+    })
+}
+
+// Ensure that our cache directory exists
+ensureExists(cacheDir, '0744', function(err) {
+	if (err) console.error(err)
+})
+
+// Set up cache
+const cache = Cache.create( { dir: cacheDir, ttl: 300000 } )
 
 module.exports = function () {
 	// Add hook for generate before to cache the API
@@ -55,6 +78,10 @@ module.exports = function () {
 			// no cache generate from API
 			if ( apiRoutesReturn === undefined ) {
 				debug( 'Caching API' )
+
+				ensureExists(generator.nuxt.options.generate.apiCacheDir, '0744', function(err) {
+					if (err) console.error(err)
+				})
 				// empty cache dir
 				ef( generator.nuxt.options.generate.apiCacheDir, false, ( feedback ) => {
 					if ( ! feedback.error ) {

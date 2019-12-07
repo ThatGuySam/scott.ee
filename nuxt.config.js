@@ -1,6 +1,9 @@
 import Cache from 'node-persist'
+import getTmpDir from './modules/getTmpDir'
 
-const cache = Cache.create( { dir: '/tmp/', ttl: 300000 } )
+const join = require('path').join
+const cacheDir = getTmpDir()
+const cache = Cache.create( { dir: cacheDir, ttl: 300000 } )
 const debug = require( 'debug' )( 'nuxt:generate' )
 const sleep = require( 'util' ).promisify( setTimeout )
 
@@ -111,10 +114,13 @@ module.exports = {
 		dir: 'dist',
 		interval: 0,
 		fallback: true,
-		apiCacheDir: 'static/json/',
+		cacheDir,
+		apiCacheDir: join(__dirname, 'static/json/'),
 		async routes() {
 			debug( 'Generating application routes' )
 			const apiRoutes = await cache.getItem( 'routes' )
+
+			// console.log('apiRoutes', apiRoutes)
 			return apiRoutes
 		}
 	},
