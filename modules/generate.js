@@ -15,7 +15,8 @@ module.exports = function () {
 
 			// function to query for posts or total pages of a post type
 			const postTypeQuery = async ( postType, page = 1, getTotal = false ) => {
-				const result = await axios.get( postType + '?_embed', { params: {
+				const result = await axios.get( '?_embed', { params: {
+					'rest_route': `/wp/v2/${postType}`,
 					'per_page': generator.nuxt.options.wordpress.postsPerPage,
 					'page': page
 				} } )

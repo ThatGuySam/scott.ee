@@ -3,7 +3,8 @@ export default {
 	async getPage( { commit, state }, params ) {
 		// check store for page already, bail if found
 		if ( ! this.getters.getPageBySlug( params.slug ) ) {
-			const page = await this.$axios.$get( 'pages?_embed', { params: {
+			const page = await this.$axios.$get( '?_embed', { params: {
+				rest_route: '/wp/v2/pages',
 				slug: params.slug
 			} } )
 			commit( 'addPage', page[0] )
@@ -14,7 +15,8 @@ export default {
 	async getPost( { commit, state }, params ) {
 		// check store for post already, bail if found
 		if ( ! this.getters.getPostBySlug( params.slug ) ) {
-			const post = await this.$axios.$get( 'posts?_embed', { params: {
+			const post = await this.$axios.$get( '?_embed', { params: {
+				rest_route: '/wp/v2/posts',
 				slug: params.slug
 			} } )
 			commit( 'addPosts', post )
@@ -45,7 +47,8 @@ export default {
 			// paginate - add this to our object of seen pages
 			commit( 'paginate', page )
 			// request posts from API
-			const posts = await this.$axios.get( 'posts?_embed', { params: {
+			const posts = await this.$axios.get( '?_embed', { params: {
+				'rest_route': '/wp/v2/posts',
 				'per_page': state.pagination.postsPerPage,
 				'page': page
 			} } )
